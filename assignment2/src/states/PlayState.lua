@@ -29,7 +29,9 @@ function PlayState:enter(params)
     self.highScores = params.highScores
     self.level = params.level
     self.balls = {}
-    self.powerups = {}
+    self.keys = {}
+    self.keysPowerups = {}
+    self.ballPowerups = {}
 
     self.recoverPoints = 5000
     self.powerupTimeout = love.timer.getTime()
@@ -57,7 +59,11 @@ function PlayState:update(dt)
     end
 
     if (love.timer.getTime() - self.powerupTimeout > 5) then
-        table.insert(self.powerups, spawnBallPowerup());
+        if math.random(1, 5) == 1 and lockedBrickExists(self.bricks) == true and self.keys[1] == nil then
+            table.insert(self.keysPowerups, spawnKeyPowerup());
+        else
+            table.insert(self.ballPowerups, spawnBallPowerup());
+        end
         self.powerupTimeout = love.timer.getTime()
     end
 
@@ -68,8 +74,12 @@ function PlayState:update(dt)
         self.balls[b]:update(dt)
     end
 
-    for p, powerup in pairs(self.powerups) do
-        self.powerups[p]:update(dt)
+    for b, ball in pairs(self.ballPowerups) do
+        self.ballPowerups[b]:update(dt)
+    end
+
+    for k, key in pairs(self.keysPowerups) do
+        self.keysPowerups[k]:update(dt)
     end
 
     for b, ball in pairs(self.balls) do
@@ -102,9 +112,16 @@ function PlayState:update(dt)
             -- only check collision if we're in play
             if brick.inPlay and self.balls[b]:collides(brick) then
 
-                -- add to score
-                self.score = self.score + (brick.tier * 200 + brick.color * 25)
-                self.sessionScore = self.score
+                if brick.locked == false then
+                    -- add to score
+                    self.score = self.score + (brick.tier * 200 + brick.color * 25)
+                    self.sessionScore = self.score
+                end
+
+                if brick.locked == true and self.keys[1] ~= nil then
+                    brick.locked = false
+                    table.remove(self.keys)
+                end
 
                 -- trigger the brick's hit function, which removes it from play
                 brick:hit()
@@ -196,6 +213,11 @@ function PlayState:update(dt)
 
             if table.maxn(self.balls) < 1 then
                 self.health = self.health - 1
+
+                if self.paddle.size > 2 then
+                   self.paddle:shrink()
+                end
+
                 gSounds['hurt']:play()
 
                 if self.health == 0 then
@@ -219,11 +241,19 @@ function PlayState:update(dt)
 
     end
 
-    for p, powerup in pairs(self.powerups) do
-        if self.powerups[p]:collides(self.paddle) then
-            table.remove(self.powerups, p)
-            addNewBall(self.balls)
-            addNewBall(self.balls)
+    for b, ball in pairs(self.ballPowerups) do
+        if self.ballPowerups[b]:collides(self.paddle) then
+            table.remove(self.ballPowerups, b)
+            table.insert(self.balls, addBall(self.balls[1]))
+            table.insert(self.balls, addBall(self.balls[1]))
+            gSounds['paddle-hit']:play()
+        end
+    end
+
+    for k, key in pairs(self.keysPowerups) do
+        if self.keysPowerups[k]:collides(self.paddle) then
+            table.remove(self.keysPowerups, k)
+            table.insert(self.keys, addKey())
             gSounds['paddle-hit']:play()
         end
     end
@@ -265,12 +295,17 @@ function PlayState:render()
         self.balls[b]:render()
     end
 
-    for p, powerup in pairs(self.powerups) do
-        self.powerups[p]:render(dt)
+    for p, powerup in pairs(self.ballPowerups) do
+        self.ballPowerups[p]:render(dt)
+    end
+
+    for k, powerup in pairs(self.keysPowerups) do
+        self.keysPowerups[k]:render(dt)
     end
 
     renderScore(self.score)
     renderHealth(self.health)
+    renderKeys(#self.keys)
 
     -- pause text, if paused
     if self.paused then

@@ -26,10 +26,18 @@ function Powerup:collides(target)
     return true
 end
 
+function Powerup:setSkin()
+    if self.type == 'ball' then
+        self.skin = 1
+    else
+        self.skin = 2
+    end
+end
+
 function Powerup:update(dt)
     self.y = self.y + self.dy * dt
 end
 
 function Powerup:render()
-    love.graphics.draw(gTextures['main'], gFrames['powerup'][1], self.x, self.y)
+    love.graphics.draw(gTextures['main'], gFrames['powerup'][self.skin], self.x, self.y)
 end

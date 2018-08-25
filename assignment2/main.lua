@@ -67,7 +67,8 @@ function love.load()
         ['balls'] = GenerateQuadsBalls(gTextures['main']),
         ['bricks'] = GenerateQuadsBricks(gTextures['main']),
         ['hearts'] = GenerateQuads(gTextures['hearts'], 10, 9),
-        ['powerup'] = GenerateQuadsPowerup(gTextures['main'])
+        ['powerup'] = GenerateQuadsPowerup(gTextures['main']),
+        ['lockedBrick'] = GenerateQuadBlockedBrick(gTextures['main'])
     }
     
     -- initialize our virtual resolution, which will be rendered within our
@@ -94,7 +95,6 @@ function love.load()
         ['recover'] = love.audio.newSource('sounds/recover.wav'),
         ['high-score'] = love.audio.newSource('sounds/high_score.wav'),
         ['pause'] = love.audio.newSource('sounds/pause.wav'),
-
         ['music'] = love.audio.newSource('sounds/music.wav')
     }
 
@@ -281,6 +281,18 @@ function renderHealth(health)
     for i = 1, 3 - health do
         love.graphics.draw(gTextures['hearts'], gFrames['hearts'][2], healthX, 4)
         healthX = healthX + 11
+    end
+end
+
+function renderKeys(keys)
+    -- start of our health rendering
+    local keyX = VIRTUAL_WIDTH - 140
+
+    -- render health left
+    for i = 1, keys do
+        love.graphics.draw(gTextures['main'],
+        gFrames['balls'][7], keyX, 4)
+        keyX = keyX + 11
     end
 end
 
