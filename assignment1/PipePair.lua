@@ -11,11 +11,11 @@
 PipePair = Class{}
 
 -- size of the gap between pipes
-local GAP_HEIGHT = 90
 
 function PipePair:init(y)
     -- flag to hold whether this pair has been scored (jumped through)
     self.scored = false
+    local GAP_HEIGHT = math.random(70, 100)
 
     -- initialize pipes past the end of the screen
     self.x = VIRTUAL_WIDTH + 32
