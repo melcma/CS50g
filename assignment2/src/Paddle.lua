@@ -42,6 +42,25 @@ function Paddle:init(skin)
     self.size = 2
 end
 
+function Paddle:grow()
+    self.size = self.size + 1
+    self:setWidth()
+end
+
+function Paddle:shrink()
+    self.size = self.size - 1
+    self:setWidth()
+end
+
+function Paddle:reset()
+    self.size = 2
+    self:setWidth()
+end
+
+function Paddle:setWidth()
+    self.width = self.size * 32
+end
+
 function Paddle:update(dt)
     -- keyboard input
     if love.keyboard.isDown('left') then

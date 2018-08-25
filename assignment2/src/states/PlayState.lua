@@ -25,14 +25,14 @@ function PlayState:enter(params)
     self.bricks = params.bricks
     self.health = params.health
     self.score = params.score
+    self.sessionScore = 0
     self.highScores = params.highScores
     self.level = params.level
     self.balls = {}
+    self.powerups = {}
 
     self.recoverPoints = 5000
     self.powerupTimeout = love.timer.getTime()
-
-    self.powerups = {}
 
     table.insert(self.balls, params.ball)
 
@@ -104,6 +104,7 @@ function PlayState:update(dt)
 
                 -- add to score
                 self.score = self.score + (brick.tier * 200 + brick.color * 25)
+                self.sessionScore = self.score
 
                 -- trigger the brick's hit function, which removes it from play
                 brick:hit()
@@ -234,6 +235,15 @@ function PlayState:update(dt)
 
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
+    end
+
+    if self.sessionScore > 1000 and self.paddle.size == 2 then
+        self.paddle:grow()
+        self.sessionScore = 0
+    end
+    if self.sessionScore > 5000 and self.paddle.size == 3 then
+        self.paddle:grow()
+        self.sessionScore = 0
     end
 
 end
