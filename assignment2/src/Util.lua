@@ -58,6 +58,10 @@ function GenerateQuadsBricks(atlas)
     return table.slice(GenerateQuads(atlas, 32, 16), 1, 21)
 end
 
+function GenerateQuadsPowerup(atlas)
+    return table.slice(GenerateQuads(atlas, 16, 16), 153, 154)
+end
+
 --[[
     This function is specifically made to piece out the paddles from the
     sprite sheet. For this, we have to piece out the paddles a little more
@@ -124,4 +128,21 @@ function GenerateQuadsBalls(atlas)
     end
 
     return quads
+end
+
+function addNewBall(balls)
+    local ball = Ball()
+
+    ball.skin = math.random(7)
+    ball.x = balls[1].x
+    ball.y = balls[1].y
+    ball.dx = math.random(-200, 200)
+    ball.dy = math.random(-50, -60)
+
+    balls[#balls+1] = ball
+end
+
+function spawnBallPowerup()
+    local powerup = Powerup()
+    return powerup
 end

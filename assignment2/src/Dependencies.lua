@@ -5,6 +5,8 @@
 -- https://github.com/Ulydev/push
 push = require 'lib/push'
 
+inspect = require 'lib/inspect'
+
 -- the "Class" library we're using will allow us to represent anything in
 -- our game as code, rather than keeping track of many disparate variables and
 -- methods
@@ -14,6 +16,8 @@ Class = require 'lib/class'
 
 -- a few global constants, centralized
 require 'src/constants'
+
+require 'src/Powerup'
 
 -- the ball that travels around, breaking bricks and triggering lives lost
 require 'src/Ball'
