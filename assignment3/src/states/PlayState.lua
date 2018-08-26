@@ -56,12 +56,12 @@ function PlayState:init()
 end
 
 function PlayState:enter(params)
-    
+
     -- grab level # from the params we're passed
     self.level = params.level
 
     -- spawn a board and place it toward the right
-    self.board = params.board or Board(VIRTUAL_WIDTH - 272, 16)
+    self.board = params.board or Board(VIRTUAL_WIDTH - 272, 16, self.level)
 
     -- grab score from params if it was passed
     self.score = params.score or 0
@@ -194,10 +194,14 @@ function PlayState:calculateMatches()
         gSounds['match']:play()
 
         self.timer = self.timer + 1
+        self.multiplier = 1
 
         -- add score for each match
         for k, match in pairs(matches) do
-            self.score = self.score + #match * 50
+            for t, tile in pairs(match) do
+                self.multiplier = self.multiplier + self.multiplier * (tile.variety - 1) * 0.5
+            end
+            self.score = math.floor(self.score + #match * 50 * self.multiplier)
         end
 
         -- remove any tiles that matched from the board, making empty spaces
