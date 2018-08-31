@@ -32,6 +32,7 @@ function PlayState:init()
 
     -- flag to show whether we're able to process input (not swapping or clearing)
     self.canInput = true
+    self.clickCooldown = false
 
     -- tile we're currently highlighting (preparing to swap)
     self.highlightedTile = nil
@@ -75,6 +76,8 @@ function PlayState:enter(params)
 end
 
 function PlayState:update(dt)
+    local mouseX, mouseY = push:toGame(love.mouse.getPosition())
+
     if love.keyboard.wasPressed('escape') then
         love.event.quit()
     end
@@ -129,11 +132,11 @@ function PlayState:update(dt)
 
         -- if we've pressed enter, to select or deselect a tile...
         if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
-            
+
             -- if same tile as currently highlighted, deselect
             local x = self.boardHighlightX + 1
             local y = self.boardHighlightY + 1
-            
+
             -- if nothing is highlighted, highlight current tile
             if not self.highlightedTile then
                 self.highlightedTile = self.board.tiles[y][x]
@@ -148,7 +151,47 @@ function PlayState:update(dt)
                 gSounds['error']:play()
                 self.highlightedTile = nil
             else
+                self.canInput = false
                 self:swapHighlighted()
+            end
+        end
+
+        if love.mouse.isDown(1) and self.clickCooldown == false then
+
+            -- if same tile as currently highlighted, deselect
+            local x = self.boardHighlightX + 1
+            local y = self.boardHighlightY + 1
+
+            -- if nothing is highlighted, highlight current tile
+            if not self.highlightedTile then
+                self.highlightedTile = self.board.tiles[y][x]
+                self.clickCooldown = true
+
+                Timer.after(0.1, function()
+                    self.clickCooldown = false
+                end)
+
+            -- if the difference between X and Y combined of this highlighted tile
+            -- vs the previous is not equal to 1, also remove highlight
+            elseif math.abs(self.highlightedTile.gridX - x) + math.abs(self.highlightedTile.gridY - y) > 1 then
+                gSounds['error']:play()
+                self.highlightedTile = nil
+            elseif math.abs(self.highlightedTile.gridX - 1) ~= self.boardHighlightX or math.abs(self.highlightedTile.gridY - 1) ~= self.boardHighlightY then
+                self.canInput = false
+                self:swapHighlighted()
+            end
+        end
+
+        if love.mouse.isDown(2) then
+            self.highlightedTile = nil
+        end
+
+        for y = 1, 8 do
+            for x = 1, 8 do
+                if mouseX >= self.board.tiles[y][x].x + (VIRTUAL_WIDTH - 272) and mouseY >= self.board.tiles[y][x].y + 16 then
+                    self.boardHighlightX = x - 1
+                    self.boardHighlightY = y - 1
+                end
             end
         end
     end
@@ -204,6 +247,7 @@ function PlayState:swapHighlighted()
                                 [betaTile] = {x = alphaTile.x, y = alphaTile.y}
                             }):finish(function()
                                 self.highlightedTile = nil
+                                self.canInput = true
 
                                 while self.board:findMatches() == false do
                                     self.board:initializeTiles()
