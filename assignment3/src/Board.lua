@@ -39,7 +39,7 @@ function Board:initializeTiles()
         for tileX = 1, 8 do
             
             -- create a new tile at X,Y with a random color and variety
-            table.insert(self.tiles[tileY], Tile(tileX, tileY, math.random(18), math.random(self.tilesRange)))
+            table.insert(self.tiles[tileY], Tile(tileX, tileY, math.random(math.min(18, self.level + 5)), math.random(self.tilesRange)))
         end
     end
 
@@ -48,6 +48,156 @@ function Board:initializeTiles()
         -- recursively initialize if matches were returned so we always have
         -- a matchless board on start
         self:initializeTiles()
+    end
+end
+
+function Board:findMatches()
+    local result
+    for y = 1, 8 do
+        for x = 1, 8 do
+            if x ~= 8 then
+                self:swapTiles(self.tiles[y][x], self.tiles[y][x + 1])
+
+                local matchNum = 1
+                local colorToMatch = self.tiles[y][1].color
+
+                for x2 = 2, 8 do
+                    if colorToMatch == self.tiles[y][x2].color then
+                        matchNum = matchNum + 1
+                    else
+                        if matchNum >= 3 then
+                            self:swapTiles(self.tiles[y][x], self.tiles[y][x + 1])
+                            return true
+                        else
+                            colorToMatch = self.tiles[y][x2].color
+                            matchNum = 1
+                        end
+                    end
+
+                    if matchNum >= 3 then
+                        self:swapTiles(self.tiles[y][x], self.tiles[y][x + 1])
+                        return true
+                    end
+                end
+            end
+
+            colorToMatch = self.tiles[1][x].color
+            matchNum = 1
+
+            for y2 = 2, 8 do
+
+                if colorToMatch == self.tiles[y2][x].color then
+                    matchNum = matchNum + 1
+                else
+                    if matchNum >= 3 then
+                        self:swapTiles(self.tiles[y][x], self.tiles[y][x + 1])
+                        return true
+                    else
+                        colorToMatch = self.tiles[y2][x].color
+                        matchNum = 1
+                    end
+                end
+
+                if matchNum >= 3 then
+                    self:swapTiles(self.tiles[y][x], self.tiles[y][x + 1])
+                    return true
+                end
+            end
+
+            if x ~= 8 then
+                self:swapTiles(self.tiles[y][x], self.tiles[y][x + 1])
+            end
+        end
+    end
+
+    for x = 1, 8 do
+        for y = 1, 8 do
+            if y ~= 8 then
+                self:swapTiles(self.tiles[y][x], self.tiles[y + 1][x])
+
+                local matchNum = 1
+                local colorToMatch = self.tiles[1][y].color
+
+                for y2 = 2, 8 do
+
+                    if colorToMatch == self.tiles[y2][x].color then
+                        matchNum = matchNum + 1
+                    else
+                        if matchNum >= 3 then
+                            self:swapTiles(self.tiles[y][x], self.tiles[y + 1][x])
+                            return true
+                        else
+                            colorToMatch = self.tiles[y2][x].color
+                            matchNum = 1
+                        end
+                    end
+
+                    if matchNum >= 3 then
+                        self:swapTiles(self.tiles[y][x], self.tiles[y + 1][x])
+                        return true
+                    end
+                end
+            end
+
+            colorToMatch = self.tiles[y][1].color
+            matchNum = 1
+
+            for x2 = 2, 8 do
+
+                if colorToMatch == self.tiles[y][x2].color then
+                    matchNum = matchNum + 1
+                else
+                    if matchNum >= 3 then
+                        self:swapTiles(self.tiles[y][x], self.tiles[y + 1][x])
+                        return true
+                    else
+                        colorToMatch = self.tiles[y][x2].color
+                        matchNum = 1
+                    end
+                end
+
+                if matchNum >= 3 then
+                    self:swapTiles(self.tiles[y][x], self.tiles[y + 1][x])
+                    return true
+                end
+            end
+
+            if y ~= 8 then
+                self:swapTiles(self.tiles[y][x], self.tiles[y + 1][x])
+            end
+        end
+    end
+
+    return false
+end
+
+function Board:swapTiles(alphaTile, betaTile, callback)
+    local alphaGridX = alphaTile.gridX
+    local alphaGridY = alphaTile.gridY
+    local alphaX = alphaTile.x
+    local alphaY = alphaTile.y
+
+    local betaGridX = betaTile.gridX
+    local betaGridY = betaTile.gridY
+    local betaX = betaTile.x
+    local betaY = betaTile.y
+
+    local tempGridX = alphaGridX
+    local tempX = alphaX
+    local tempGridY = alphaGridY
+    local tempY = alphaY
+
+    alphaTile.gridX = betaTile.gridX
+    alphaTile.gridY = betaTile.gridY
+
+    betaTile.gridX = tempGridX
+    betaTile.gridY = tempGridY
+
+    self.tiles[alphaTile.gridY][alphaTile.gridX] = alphaTile
+    self.tiles[betaTile.gridY][betaTile.gridX] = betaTile
+
+    if callback ~= nil then
+        callback()
     end
 end
 
@@ -306,7 +456,7 @@ function Board:getFallingTiles()
             if not tile then
 
                 -- new tile with random color and variety
-                local tile = Tile(x, y, math.random(18), math.random(self.tilesRange))
+                local tile = Tile(x, y, math.random(math.min(18, self.level + 5)), math.random(self.tilesRange))
                 tile.y = -32
                 self.tiles[y][x] = tile
 

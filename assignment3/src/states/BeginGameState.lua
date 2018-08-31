@@ -31,6 +31,10 @@ function BeginGameState:enter(def)
     -- spawn a board and place it toward the right
     self.board = Board(VIRTUAL_WIDTH - 272, 16, self.level)
 
+    while self.board:findMatches() == false do
+        self.board:initializeTiles()
+    end
+
     --
     -- animate our white screen fade-in, then animate a drop-down with
     -- the level text
