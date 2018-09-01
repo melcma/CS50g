@@ -19,7 +19,7 @@ function PlayState:init()
     self.gravityAmount = 6
 
     self.player = Player({
-        x = 0, y = 0,
+        x = self:calculateSafeSpawn(), y = 0,
         width = 16, height = 20,
         texture = 'green-alien',
         stateMachine = StateMachine {
@@ -35,6 +35,24 @@ function PlayState:init()
     self:spawnEnemies()
 
     self.player:changeState('falling')
+end
+
+function PlayState:calculateSafeSpawn()
+    for x = 1, 100 do
+        local isChasm = true
+
+        for y = 1, 10 do
+            if self.tileMap.tiles[y][x].id == TILE_ID_GROUND then
+                isChasm = false
+            end
+        end
+
+        if isChasm == false then
+            return (x - 1) * 16
+        end
+    end
+
+    return 0
 end
 
 function PlayState:update(dt)
