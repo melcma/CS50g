@@ -159,8 +159,14 @@ function LevelMaker.generate(width, height)
                                 frame = pattern * 9 - 2 - 18,
                                 collidable = false,
                                 solid = false,
-                                consumable = false,
-                                direction = 'left'
+                                direction = 'left',
+                                consumable = true,
+                                onConsume = function(player)
+                                    gStateMachine:change('play', {
+                                        score = player.score,
+                                        width = width + 50
+                                    })
+                                end
                             })
                         end
                     end
