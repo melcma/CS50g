@@ -21,6 +21,7 @@ function GameObject:init(def)
     self.onCollide = def.onCollide
     self.onConsume = def.onConsume
     self.hit = def.hit
+    self.direction = def.direction and def.direction or 'right'
 end
 
 function GameObject:collides(target)
@@ -33,5 +34,5 @@ function GameObject:update(dt)
 end
 
 function GameObject:render()
-    love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.frame], self.x, self.y)
+    love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.frame], self.x, self.y, 0, self.direction == 'right' and 1 or -1, 1, self.direction == 'right' and 1 or 16)
 end

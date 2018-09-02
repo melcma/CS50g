@@ -97,14 +97,80 @@ function LevelMaker.generate(width, height)
                 onCollide = function()
                     lock.lockUnlocked = true
                     table.remove(objects, keyID)
+
+                    local segments = math.random(3, 5)
+                    local pattern = math.random(3, 6)
+                    local flagX = width - 1
+
                     gSounds['powerup-reveal']:play()
+
+                    for f = 1, segments do
+                        -- top
+                        if f == 1 then
+                            table.insert(objects, GameObject {
+                                texture = 'flags',
+                                x = flagX * TILE_SIZE,
+                                y = (6 - segments) * TILE_SIZE,
+                                width = 16,
+                                height = 16,
+
+                                frame = pattern,
+                                collidable = false,
+                                solid = false,
+                                consumable = false
+                            })
+                        -- stand
+                        elseif f == segments then
+                            table.insert(objects, GameObject {
+                                texture = 'flags',
+                                x = flagX * TILE_SIZE,
+                                y = (5) * TILE_SIZE,
+                                width = 16,
+                                height = 16,
+
+                                frame = pattern + 18,
+                                collidable = false,
+                                solid = false,
+                                consumable = false
+                            })
+                        else
+                            -- middle segments
+                            table.insert(objects, GameObject {
+                                texture = 'flags',
+                                x = flagX * TILE_SIZE,
+                                y = (5 - segments + f) * TILE_SIZE,
+                                width = 16,
+                                height = 16,
+
+                                frame = pattern + 9,
+                                collidable = false,
+                                solid = false,
+                                consumable = false
+                            })
+
+                            -- banners
+                            table.insert(objects, GameObject {
+                                texture = 'flags',
+                                x = flagX * TILE_SIZE - 8,
+                                y = (5 - segments + f) * TILE_SIZE - TILE_SIZE / 2,
+                                width = 16,
+                                height = 16,
+
+                                frame = pattern * 9 - 2 - 18,
+                                collidable = false,
+                                solid = false,
+                                consumable = false,
+                                direction = 'left'
+                            })
+                        end
+                    end
                 end
             }
 
             table.insert(objects, lock)
 
         -- chance to just be emptiness
-        elseif math.random(7) == 1 then
+        elseif math.random(7) == 1 and x < width - 1 then
             for y = 7, height do
                 table.insert(tiles[y],
                     Tile(x, y, tileID, nil, tileset, topperset))
@@ -120,7 +186,7 @@ function LevelMaker.generate(width, height)
             end
 
             -- chance to generate a pillar
-            if math.random(8) == 1 then
+            if math.random(8) == 1 and x < width - 1 then
                 blockHeight = 2
                 
                 -- chance to generate bush on pillar
@@ -160,7 +226,7 @@ function LevelMaker.generate(width, height)
             end
 
             -- chance to spawn a block
-            if math.random(10) == 1 then
+            if math.random(10) == 1 and x < width - 1 then
                 table.insert(objects,
 
                     -- jump block
