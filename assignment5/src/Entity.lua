@@ -73,6 +73,20 @@ function Entity:changeState(name)
     self.stateMachine:change(name)
 end
 
+function Entity:die(params)
+    self.dead = true
+    if math.random(10) == 1 then self:dropLife(params) end
+end
+
+function Entity:dropLife(params)
+    local life = GameObject(GAME_OBJECT_DEFS['life'], self.x, self.y)
+
+    life.onConsume = function()
+        params.player.health = math.min(params.player.health + 2, 6)
+    end
+    table.insert(params.objects, life)
+end
+
 function Entity:changeAnimation(name)
     self.currentAnimation = self.animations[name]
 end

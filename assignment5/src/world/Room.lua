@@ -156,8 +156,8 @@ function Room:update(dt)
         local entity = self.entities[i]
 
         -- remove entity from the table if health is <= 0
-        if entity.health <= 0 then
-            entity.dead = true
+        if entity.health <= 0 and entity.dead == false then
+            entity:die({objects = self.objects, player = self.player})
         elseif not entity.dead then
             entity:processAI({room = self}, dt)
             entity:update(dt)
@@ -180,7 +180,12 @@ function Room:update(dt)
 
         -- trigger collision callback on object
         if self.player:collides(object) then
-            object:onCollide()
+            if object.consumable then
+                object:onConsume()
+                table.remove(self.objects, k)
+            else
+                object:onCollide()
+            end
         end
     end
 end
