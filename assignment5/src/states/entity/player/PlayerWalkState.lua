@@ -17,7 +17,7 @@ function PlayerWalkState:init(player, dungeon)
     self.entity.offsetX = 0
 end
 
-function PlayerWalkState:update(dt)
+function PlayerWalkState:controls(dt)
     if love.keyboard.isDown('left') then
         self.entity.direction = 'left'
         self.entity:changeAnimation('walk-left')
@@ -37,9 +37,34 @@ function PlayerWalkState:update(dt)
     if love.keyboard.wasPressed('space') then
         self.entity:changeState('swing-sword')
     end
+end
+
+function PlayerWalkState:update(dt)
+   self:controls()
 
     -- perform base collision detection against walls
     EntityWalkState.update(self, dt)
+
+    if self.entity.colliding then
+        if self.entity.direction == 'left' then
+            self.entity.x = self.entity.x + 3
+        end
+
+        if self.entity.direction == 'right' then
+            self.entity.x = self.entity.x - 3
+        end
+
+        if self.entity.direction == 'up' then
+            self.entity.y = self.entity.y + 3
+        end
+
+        if self.entity.direction == 'down' then
+            self.entity.y = self.entity.y - 3
+        end
+
+        self.entity.colliding = false
+    end
+
 
     -- if we bumped something when checking collision, check any object collisions
     if self.bumped then
@@ -47,7 +72,7 @@ function PlayerWalkState:update(dt)
             
             -- temporarily adjust position
             self.entity.x = self.entity.x - PLAYER_WALK_SPEED * dt
-            
+
             for k, doorway in pairs(self.dungeon.currentRoom.doorways) do
                 if self.entity:collides(doorway) and doorway.open then
 

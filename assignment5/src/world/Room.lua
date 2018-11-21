@@ -22,6 +22,7 @@ function Room:init(player)
     -- game objects in the room
     self.objects = {}
     self:generateObjects()
+    self:generatePots()
 
     -- doorways that lead to other dungeon rooms
     self.doorways = {}
@@ -106,6 +107,28 @@ function Room:generateObjects()
     end
 end
 
+function Room:generatePots()
+    table.insert(self.objects, GameObject(
+        GAME_OBJECT_DEFS['pot'],
+        math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
+                    VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+        math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
+                    VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
+    ))
+
+    local pot = self.objects[2]
+
+    pot.onCollide = function()
+        self.player.colliding = true
+        if pot.state == 'default' then
+            if love.keyboard.wasPressed('space') then
+                pot.state = 'picked'
+                self.player:changeState('pot-idle')
+            end
+        end
+    end
+end
+
 --[[
     Generates the walls and floors of the room, randomizing the various varieties
     of said tiles for visual variety.
@@ -186,6 +209,11 @@ function Room:update(dt)
             else
                 object:onCollide()
             end
+        end
+
+        if object.state == 'picked' then
+            object.x = self.player.x
+            object.y = self.player.y - self.player.height / 2
         end
     end
 end
