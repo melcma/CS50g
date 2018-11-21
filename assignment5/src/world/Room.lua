@@ -120,12 +120,15 @@ function Room:generatePots()
 
     pot.onCollide = function()
         self.player.colliding = true
-        if pot.state == 'default' then
-            if love.keyboard.wasPressed('space') then
-                pot.state = 'picked'
-                self.player:changeState('pot-idle')
-            end
+        if pot.state == 'default' and love.keyboard.wasPressed('space') then
+            pot.state = 'picked'
+            self.player.holding = pot
+            self.player:changeState('pot-idle')
         end
+    end
+
+    pot.onDestroy = function()
+        self.objects[2] = nil
     end
 end
 
@@ -214,6 +217,33 @@ function Room:update(dt)
         if object.state == 'picked' then
             object.x = self.player.x
             object.y = self.player.y - self.player.height / 2
+        end
+
+        if object.state == 'thrown' then
+            for i = #self.entities, 1, -1 do
+                local entity = self.entities[i]
+                if entity:collides(object) then
+                    object:onDestroy()
+                    entity:damage(1)
+                end
+            end
+
+            if object.x > object.origx + TILE_SIZE * 4 then
+                object.dx = 0
+                object:onDestroy()
+            elseif object.x < object.origx - TILE_SIZE * 4 then
+                object.dx = 0
+                object:onDestroy()
+            elseif object.y > object.origy + TILE_SIZE * 4 then
+                object.dx = 0
+                object:onDestroy()
+            elseif object.y < object.origy - TILE_SIZE * 4 then
+                object.dx = 0
+                object:onDestroy()
+            end
+
+            object.x = object.x + object.dx
+            object.y = object.y + object.dy
         end
     end
 end

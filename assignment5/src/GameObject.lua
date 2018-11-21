@@ -18,6 +18,8 @@ function GameObject:init(def, x, y)
     -- whether it acts as an obstacle or not
     self.solid = def.solid
     self.consumable = def.consumable or false
+    self.projectile = def.projectile or false
+    self.holding = def.holding or false
 
     self.defaultState = def.defaultState
     self.state = self.defaultState
@@ -26,6 +28,10 @@ function GameObject:init(def, x, y)
     -- dimensions
     self.x = x
     self.y = y
+    self.dx = def.dx or 0
+    self.dy = def.dy or 0
+    self.origx = 0
+    self.origy = 0
     self.width = def.width
     self.height = def.height
 

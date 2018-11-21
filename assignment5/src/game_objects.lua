@@ -32,12 +32,16 @@ GAME_OBJECT_DEFS = {
         height = 16,
         solid = true,
         consumable = false,
+        projectile =  true,
         defaultState = 'default',
         states = {
             ['default'] = {
                 frame = 14
             },
             ['picked'] = {
+                frame = 14
+            },
+            ['thrown'] = {
                 frame = 14
             }
         }

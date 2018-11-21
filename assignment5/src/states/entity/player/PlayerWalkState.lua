@@ -40,7 +40,7 @@ function PlayerWalkState:controls(dt)
 end
 
 function PlayerWalkState:update(dt)
-   self:controls()
+   self:controls(dt)
 
     -- perform base collision detection against walls
     EntityWalkState.update(self, dt)
