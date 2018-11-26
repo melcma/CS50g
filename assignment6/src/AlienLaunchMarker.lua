@@ -11,6 +11,8 @@ AlienLaunchMarker = Class{}
 function AlienLaunchMarker:init(world)
     self.world = world
 
+    self.lockedCloning = false
+
     -- starting coordinates for launcher used to calculate launch vector
     self.baseX = 90
     self.baseY = VIRTUAL_HEIGHT - 100
@@ -29,11 +31,10 @@ function AlienLaunchMarker:init(world)
     self.launched = false
 
     -- our alien we will eventually spawn
-    self.alien = nil
+    self.aliens = {}
 end
 
 function AlienLaunchMarker:update(dt)
-    
     -- perform everything here as long as we haven't launched yet
     if not self.launched then
 
@@ -49,14 +50,15 @@ function AlienLaunchMarker:update(dt)
             self.launched = true
 
             -- spawn new alien in the world, passing in user data of player
-            self.alien = Alien(self.world, 'round', self.shiftedX, self.shiftedY, 'Player')
+            table.insert(self.aliens, Alien(self.world, 'round', self.shiftedX, self.shiftedY, 'Player'))
 
             -- apply the difference between current X,Y and base X,Y as launch vector impulse
-            self.alien.body:setLinearVelocity((self.baseX - self.shiftedX) * 10, (self.baseY - self.shiftedY) * 10)
-
-            -- make the alien pretty bouncy
-            self.alien.fixture:setRestitution(0.4)
-            self.alien.body:setAngularDamping(1)
+            for a, alien in pairs(self.aliens) do
+                alien.body:setLinearVelocity((self.baseX - self.shiftedX) * 10, (self.baseY - self.shiftedY) * 10)
+                -- make the alien pretty bouncy
+                alien.fixture:setRestitution(0.4)
+                alien.body:setAngularDamping(1)
+            end
 
             -- we're no longer aiming
             self.aiming = false
@@ -66,6 +68,16 @@ function AlienLaunchMarker:update(dt)
             self.rotation = self.baseY - self.shiftedY * 0.9
             self.shiftedX = math.min(self.baseX + 30, math.max(x, self.baseX - 30))
             self.shiftedY = math.min(self.baseY + 30, math.max(y, self.baseY - 30))
+        end
+    else
+        if love.keyboard.wasPressed('space') and #self.aliens == 1 and self.lockedCloning == false then
+            local lastAlien = #self.aliens
+            local xPos, yPos = self.aliens[lastAlien].body:getPosition()
+            local xVel, yVel = self.aliens[lastAlien].body:getLinearVelocity()
+            table.insert(self.aliens, Alien(self.world, 'round', xPos - 10, yPos + 40, 'Player'))
+            table.insert(self.aliens, Alien(self.world, 'round', xPos - 10, yPos - 40, 'Player'))
+            self.aliens[lastAlien + 1].body:setLinearVelocity(xVel, yVel)
+            self.aliens[lastAlien + 2].body:setLinearVelocity(xVel, yVel)
         end
     end
 end
@@ -106,6 +118,8 @@ function AlienLaunchMarker:render()
         
         love.graphics.setColor(255, 255, 255, 255)
     else
-        self.alien:render()
+        for a, alien in pairs(self.aliens) do
+            alien:render()
+        end
     end
 end

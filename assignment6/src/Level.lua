@@ -26,6 +26,7 @@ function Level:init()
 
         -- if we collided between both an alien and an obstacle...
         if types['Obstacle'] and types['Player'] then
+            self.launchMarker.lockedCloning = true
 
             -- destroy the obstacle if player's combined velocity is high enough
             if a:getUserData() == 'Obstacle' then
@@ -153,7 +154,7 @@ function Level:update(dt)
 
     -- destroy all bodies we calculated to destroy during the update call
     for k, body in pairs(self.destroyedBodies) do
-        if not body:isDestroyed() then 
+        if not body:isDestroyed() then
             body:destroy()
         end
     end
@@ -183,17 +184,26 @@ function Level:update(dt)
     end
 
     -- replace launch marker if original alien stopped moving
-    if self.launchMarker.launched then
-        local xPos, yPos = self.launchMarker.alien.body:getPosition()
-        local xVel, yVel = self.launchMarker.alien.body:getLinearVelocity()
-        
-        -- if we fired our alien to the left or it's almost done rolling, respawn
-        if xPos < 0 or (math.abs(xVel) + math.abs(yVel) < 1.5) then
-            self.launchMarker.alien.body:destroy()
-            self.launchMarker = AlienLaunchMarker(self.world)
 
-            -- re-initialize level if we have no more aliens
-            if #self.aliens == 0 then
+
+    if self.launchMarker.launched then
+        local stoppedAliens = 0
+
+        for a, alien in pairs(self.launchMarker.aliens) do
+            local xPos, yPos = alien.body:getPosition()
+            local xVel, yVel = alien.body:getLinearVelocity()
+
+            -- if we fired our alien to the left or it's almost done rolling, respawn
+            if xPos < 0 or (math.abs(xVel) + math.abs(yVel) < 1.5) then
+                stoppedAliens = stoppedAliens + 1
+            end
+        end
+
+        if stoppedAliens == #self.launchMarker.aliens then
+            for a, alien in pairs(self.launchMarker.aliens) do
+                alien.body:destroy()
+                self.launchMarker = AlienLaunchMarker(self.world)
+                -- re-initialize level if we have no more aliens
                 gStateMachine:change('start')
             end
         end
