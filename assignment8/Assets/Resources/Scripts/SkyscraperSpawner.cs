@@ -3,8 +3,8 @@ using System.Collections;
 
 public class SkyscraperSpawner : MonoBehaviour {
 
-	public GameObject[] prefabs;
-	public static float speed = 10f;
+    public GameObject[] prefabs;
+    public static float speed = 10f;
 
 	// Use this for initialization
 	void Start () {
@@ -17,6 +17,11 @@ public class SkyscraperSpawner : MonoBehaviour {
 	void Update () {
 
 	}
+
+    public void ResetSpeed ()
+    {
+        speed = 10f;
+    }
 
 	IEnumerator SpawnSkyscrapers() {
 		while (true) {

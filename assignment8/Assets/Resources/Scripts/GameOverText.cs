@@ -6,6 +6,7 @@ using System.Collections;
 public class GameOverText : MonoBehaviour {
 
 	public GameObject helicopter;
+    public SkyscraperSpawner skyscraperSpawner;
 	private Text text;
 	private int coins;
 
@@ -31,7 +32,8 @@ public class GameOverText : MonoBehaviour {
 			// jump is space bar by default
 			if (Input.GetButtonDown("Jump")) {
 
-				// reload entire scene, starting music over again, refreshing score, etc.
+                // reload entire scene, starting music over again, refreshing score, etc.
+                skyscraperSpawner.ResetSpeed();
 				SceneManager.LoadScene("Main");
 			}
 		}
