@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
 	public Component ambientSound;
+	public Score score;
 
 	// Start is called before the first frame update
 	void Start()
@@ -21,6 +22,7 @@ public class PlayerController : MonoBehaviour
 			{
 				Destroy(ambientSound.gameObject);
 			}
+			score.ResetScore();
 			SceneManager.LoadScene("GameOver");
 		}
     }
